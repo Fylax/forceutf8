@@ -8,7 +8,8 @@
         "php": "^7.0 || ^8.0"
     },
     "suggest": {
-        "ext-iconv": "*"
+        "ext-iconv": "To convert non-UTF-8 strings to UTF-8",
+        "ext-mbstring": "To convert non-UTF-8 strings to UTF-8"
     },
     "authors": [
         {

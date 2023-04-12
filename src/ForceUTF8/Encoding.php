@@ -324,11 +324,14 @@ class Encoding {
   protected static function utf8_decode($text, $option = self::WITHOUT_ICONV)
   {
     if ($option == self::WITHOUT_ICONV || !function_exists('iconv')) {
-       $o = utf8_decode(
-         str_replace(array_keys(self::$utf8ToWin1252), array_values(self::$utf8ToWin1252), self::toUTF8($text))
-       );
+      $utf8 = str_replace(array_keys(self::$utf8ToWin1252), array_values(self::$utf8ToWin1252), self::toUTF8($text));
+      if (function_exists('mb_convert_encoding')) {
+        $o = mb_convert_encoding($utf8, 'Windows-1252', 'UTF-8');
+      } else {
+        $o = utf8_decode($utf8);
+      }
     } else {
-       $o = iconv("UTF-8", "Windows-1252" . ($option === self::ICONV_TRANSLIT ? '//TRANSLIT' : ($option === self::ICONV_IGNORE ? '//IGNORE' : '')), $text);
+      $o = iconv("UTF-8", "Windows-1252" . ($option === self::ICONV_TRANSLIT ? '//TRANSLIT' : ($option === self::ICONV_IGNORE ? '//IGNORE' : '')), $text);
     }
     return $o;
   }

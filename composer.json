@@ -23,9 +23,14 @@
         }
     ],
     "autoload": {
-        "psr-0": {
-            "ForceUTF8\\": "src/"
+        "psr-4": {
+            "ForceUTF8\\": "ForceUTF8"
         }
+    },
+    "archive": {
+        "exclude": [
+            "tests"
+        ]
     },
     "extra": {
         "thanks": {

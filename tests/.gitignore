@@ -1,0 +1,4 @@
+*
+!*.php
+!phpunit.xml
+!data

@@ -9,6 +9,7 @@ namespace ForceUTF8;
 use function array_keys;
 use function array_values;
 use function chr;
+use function extension_loaded;
 use function function_exists;
 use function iconv;
 use function ini_get;
@@ -332,10 +333,13 @@ class Encoding {
 
     $text = str_replace(array_keys(self::$utf8ToWin1252), array_values(self::$utf8ToWin1252), self::toUTF8($text));
     if (function_exists('mb_convert_encoding')) {
-      $o = mb_convert_encoding($text, 'Windows-1252', 'UTF-8');
-    } else {
-      $o = utf8_decode($text);
+      return mb_convert_encoding($text, 'Windows-1252', 'UTF-8');
     }
-    return $o;
+
+    if (extension_loaded('intl')) {
+      return \UConverter::transcode($text, 'ISO-8859-1', 'UTF-8');
+    }
+
+    return utf8_decode($text);
   }
 }

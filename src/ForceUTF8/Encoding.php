@@ -15,6 +15,8 @@ use function ini_get;
 use function intdiv;
 use function is_array;
 use function is_string;
+use function mb_convert_encoding;
+use function mb_strlen;
 use function ord;
 use function pack;
 use function preg_replace;
@@ -22,6 +24,7 @@ use function str_replace;
 use function strlen;
 use function strtoupper;
 use function substr;
+use function utf8_decode;
 
 class Encoding {
 
@@ -323,15 +326,15 @@ class Encoding {
 
   protected static function utf8_decode($text, $option = self::WITHOUT_ICONV)
   {
-    if ($option == self::WITHOUT_ICONV || !function_exists('iconv')) {
-      $utf8 = str_replace(array_keys(self::$utf8ToWin1252), array_values(self::$utf8ToWin1252), self::toUTF8($text));
-      if (function_exists('mb_convert_encoding')) {
-        $o = mb_convert_encoding($utf8, 'Windows-1252', 'UTF-8');
-      } else {
-        $o = utf8_decode($utf8);
-      }
+    if ($option !== self::WITHOUT_ICONV && function_exists('iconv')) {
+      return iconv("UTF-8", "Windows-1252" . ($option === self::ICONV_TRANSLIT ? '//TRANSLIT' : ($option === self::ICONV_IGNORE ? '//IGNORE' : '')), $text);
+    }
+
+    $text = str_replace(array_keys(self::$utf8ToWin1252), array_values(self::$utf8ToWin1252), self::toUTF8($text));
+    if (function_exists('mb_convert_encoding')) {
+      $o = mb_convert_encoding($text, 'Windows-1252', 'UTF-8');
     } else {
-      $o = iconv("UTF-8", "Windows-1252" . ($option === self::ICONV_TRANSLIT ? '//TRANSLIT' : ($option === self::ICONV_IGNORE ? '//IGNORE' : '')), $text);
+      $o = utf8_decode($text);
     }
     return $o;
   }

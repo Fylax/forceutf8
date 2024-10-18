@@ -332,7 +332,7 @@ class Encoding {
 
     $text = str_replace(array_keys(self::$utf8ToWin1252), array_values(self::$utf8ToWin1252), self::toUTF8($text));
     if (function_exists('mb_convert_encoding')) {
-      return mb_convert_encoding($text, 'Windows-1252', 'UTF-8');
+      return mb_convert_encoding($text, 'ISO-8859-1', 'UTF-8');
     }
 
     if (extension_loaded('intl')) {

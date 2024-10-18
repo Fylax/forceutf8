@@ -13,6 +13,7 @@
     },
     "suggest": {
         "ext-iconv": "To convert non-UTF-8 strings to UTF-8",
+        "ext-intl": "To convert non-UTF-8 strings to UTF-8",
         "ext-mbstring": "To convert non-UTF-8 strings to UTF-8"
     },
     "authors": [

@@ -10,8 +10,10 @@
     },
     "require-dev": {
         "ext-dom": "*",
-        "phpunit/phpunit": "^10.0",
-        "phpstan/phpstan": "^1.12"
+        "phpunit/phpunit": "^12",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "phpstan/extension-installer": "^1.4"
     },
     "suggest": {
         "ext-iconv": "To convert non-UTF-8 strings to UTF-8",
@@ -45,5 +47,10 @@
     "scripts": {
         "tests": " ./vendor/bin/phpunit tests",
         "phpstan": "./vendor/phpstan/phpstan/phpstan analyse -c phpstan.neon --memory-limit=4096M --error-format=table --no-progress -vvv"
+    },
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
     }
 }

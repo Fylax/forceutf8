@@ -11,7 +11,6 @@ use function array_values;
 use function chr;
 use function extension_loaded;
 use function function_exists;
-use function ini_get;
 use function intdiv;
 use function is_array;
 use function is_string;
@@ -131,13 +130,17 @@ class Encoding
      * 3) when any of these: ðñòó  are followed by THREE chars from group B.
      *
      * @param string|string[] $text Any string.
-     * @return string|string[]  The same string, UTF8 encoded
+     * @return ($text is string ? string : string[])  The same string, UTF8 encoded
      */
     public static function toUTF8($text)
     {
         if (is_array($text)) {
             foreach ($text as $k => $v) {
-                $text[$k] = self::toUTF8($v);
+                if (!is_string($v)) {
+                    trigger_error("Deprecated: \$text[$k] must be a string", E_USER_DEPRECATED);
+                } else {
+                    $text[$k] = self::toUTF8($v);
+                }
             }
             return $text;
         }
@@ -156,7 +159,7 @@ class Encoding
                 $c2 = $i + 1 >= $max ? "\x00" : $text[$i + 1];
                 $c3 = $i + 2 >= $max ? "\x00" : $text[$i + 2];
                 $c4 = $i + 3 >= $max ? "\x00" : $text[$i + 3];
-                if ($c1 >= "\xc0" & $c1 <= "\xdf") { //looks like 2 bytes UTF8
+                if (($c1 >= "\xc0" & $c1 <= "\xdf") !== 0) { //looks like 2 bytes UTF8
                     if ($c2 >= "\x80" && $c2 <= "\xbf") { //yeah, almost sure it's UTF8 already
                         $buf .= $c1 . $c2;
                         $i++;
@@ -165,7 +168,7 @@ class Encoding
                         $cc2 = ($c1 & "\x3f") | "\x80";
                         $buf .= $cc1 . $cc2;
                     }
-                } elseif ($c1 >= "\xe0" & $c1 <= "\xef") { //looks like 3 bytes UTF8
+                } elseif (($c1 >= "\xe0" & $c1 <= "\xef") !== 0) { //looks like 3 bytes UTF8
                     if ($c2 >= "\x80" && $c2 <= "\xbf" && $c3 >= "\x80" && $c3 <= "\xbf") { //yeah, almost sure it's UTF8 already
                         $buf .= $c1 . $c2 . $c3;
                         $i = $i + 2;
@@ -174,7 +177,7 @@ class Encoding
                         $cc2 = ($c1 & "\x3f") | "\x80";
                         $buf .= $cc1 . $cc2;
                     }
-                } elseif ($c1 >= "\xf0" & $c1 <= "\xf7") { //looks like 4 bytes UTF8
+                } elseif (($c1 >= "\xf0" & $c1 <= "\xf7") !== 0) { //looks like 4 bytes UTF8
                     if ($c2 >= "\x80" && $c2 <= "\xbf" && $c3 >= "\x80" && $c3 <= "\xbf" && $c4 >= "\x80" && $c4 <= "\xbf") { //yeah, almost sure it's UTF8 already
                         $buf .= $c1 . $c2 . $c3 . $c4;
                         $i = $i + 3;
@@ -206,7 +209,7 @@ class Encoding
     /**
      * @param string|string[] $text
      * @param IconvOptions|string $option
-     * @return string|string[]|false
+     * @return ($text is string ? string|false : array<string|false>)
      */
     public static function toWin1252($text, IconvOptions|string $option = IconvOptions::WITHOUT_ICONV)
     {
@@ -217,7 +220,11 @@ class Encoding
 
         if (is_array($text)) {
             foreach ($text as $k => $v) {
-                $text[$k] = self::toWin1252($v, $option);
+                if (!is_string($v)) {
+                    trigger_error("Deprecated: \$text[$k] must be a string", E_USER_DEPRECATED);
+                } else {
+                    $text[$k] = self::toWin1252($v, $option);
+                }
             }
             return $text;
         }
@@ -233,7 +240,7 @@ class Encoding
     /**
      * @param string|string[] $text
      * @param IconvOptions|string $option
-     * @return string|string[]|false
+     * @return ($text is string ? string|false : array<string|false>)
      */
     public static function toISO8859($text, IconvOptions|string $option = IconvOptions::WITHOUT_ICONV)
     {
@@ -247,7 +254,7 @@ class Encoding
     /**
      * @param string|string[] $text
      * @param IconvOptions|string $option
-     * @return string|string[]|false
+     * @return ($text is string ? string|false : array<string|false>)
      */
     public static function toLatin1($text, IconvOptions|string $option = IconvOptions::WITHOUT_ICONV)
     {
@@ -261,7 +268,7 @@ class Encoding
     /**
      * @param string|string[] $text
      * @param IconvOptions|string $option
-     * @return string|string[]
+     * @return ($text is string ? string|false : array<string|false>)
      */
     public static function fixUTF8($text, IconvOptions|string $option = IconvOptions::WITHOUT_ICONV)
     {
@@ -269,9 +276,14 @@ class Encoding
             trigger_error('Deprecated: use IconvOptions enum for $option', E_USER_DEPRECATED);
             $option = IconvOptions::fromString($option);
         }
+
         if (is_array($text)) {
             foreach ($text as $k => $v) {
-                $text[$k] = self::fixUTF8($v, $option);
+                if (!is_string($v)) {
+                    trigger_error("Deprecated: \$text[$k] must be a string", E_USER_DEPRECATED);
+                } else {
+                    $text[$k] = self::fixUTF8($v, $option);
+                }
             }
             return $text;
         }
@@ -282,16 +294,24 @@ class Encoding
         }
 
         $last = "";
-        while ($last <> $text) {
+        while ($last !== $text) {
             $last = $text;
-            $text = self::toUTF8(static::utf8_decode($text, $option));
+            $decoded = static::utf8_decode($text, $option);
+            if ($decoded === false) {
+                return false;
+            }
+            $text = self::toUTF8($decoded);
         }
-        return self::toUTF8(static::utf8_decode($text, $option));
+        $decoded = static::utf8_decode($text, $option);
+        if ($decoded === false) {
+            return false;
+        }
+        return self::toUTF8($decoded);
     }
 
     /**
      * @param string|string[] $text
-     * @return string|string[]
+     * @return ($text is string ? string : string[])
      */
     public static function UTF8FixWin1252Chars(array|string $text): array|string
     {
@@ -315,14 +335,19 @@ class Encoding
 
     protected static function strlen(string $text): int
     {
-        return (function_exists('mb_strlen') && ((int)ini_get('mbstring.func_overload')) & 2) ?
-            \mb_strlen($text, '8bit') : strlen($text);
+        return function_exists('mb_strlen')
+            ? \mb_strlen($text, '8bit')
+            : strlen($text);
     }
 
     public static function normalizeEncoding(string $encodingLabel): string
     {
         $encoding = strtoupper($encodingLabel);
         $encoding = preg_replace('/[^a-zA-Z0-9\s]/', '', $encoding);
+        if ($encoding === null) {
+            return 'UTF-8';
+        }
+
         $equivalences = [
             'ISO88591' => 'ISO-8859-1',
             'ISO8859' => 'ISO-8859-1',
@@ -335,13 +360,18 @@ class Encoding
             'WINDOWS1252' => 'ISO-8859-1'
         ];
 
-        if (empty($equivalences[$encoding])) {
+        if (array_key_exists($encoding, $equivalences)) {
             return 'UTF-8';
         }
 
         return $equivalences[$encoding];
     }
 
+    /**
+     * @param string $encodingLabel
+     * @param string|string[] $text
+     * @return false|mixed|string|string[]
+     */
     public static function encode(string $encodingLabel, $text)
     {
         if (!is_array($text) && !is_string($text)) {
@@ -375,6 +405,7 @@ class Encoding
             );
         }
 
+        /** @var string $text */
         $text = str_replace(
             array_keys(self::UTF8_TO_WIN1252),
             array_values(self::UTF8_TO_WIN1252),

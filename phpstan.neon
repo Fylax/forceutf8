@@ -1,8 +1,11 @@
 parameters:
+  fileExtensions:
+    - php
   excludePaths:
     - tests/*
   inferPrivatePropertyTypeFromConstructor: true
-  level: 5
+  treatPhpDocTypesAsCertain: false
+  level: 10
   paths:
     - ForceUTF8
   ignoreErrors:

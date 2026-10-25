@@ -6,7 +6,7 @@
     "description": "PHP Class Encoding featuring popular Encoding::toUTF8() function --formerly known as forceUTF8()-- that fixes mixed encoded strings.",
     "readme": "README.md",
     "require": {
-        "php": "^8.1"
+        "php": "^8.2"
     },
     "require-dev": {
         "ext-dom": "*",
@@ -45,7 +45,7 @@
         }
     },
     "scripts": {
-        "tests": " ./vendor/bin/phpunit tests",
+        "tests": "./vendor/bin/phpunit -c tests/phpunit.xml tests",
         "phpstan": "./vendor/phpstan/phpstan/phpstan analyse -c phpstan.neon --memory-limit=4096M --error-format=table --no-progress -vvv"
     },
     "config": {

@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit colors="true">
-    <logging>
-        <testdoxText outputFile="results.txt"/>
-    </logging>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/12.5/phpunit.xsd"
+         colors="true">
+    <source>
+        <include>
+            <directory suffix=".php">../ForceUTF8</directory>
+        </include>
+    </source>
 </phpunit>

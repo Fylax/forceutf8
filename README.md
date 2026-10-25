@@ -5,10 +5,11 @@ PHP Class Encoding featuring popular \ForceUTF8\Encoding::toUTF8() function --fo
 ## Fork
 
 This package is a fork of the [`neitanod/forceutf8`](https://github.com/neitanod/forceutf8) library
-that adds support for PHP 7.0 and higher.
+that adds support for PHP 8.2 and higher.
 
 This fork:
 - fixes deprecations for new versions of PHP
+- modernizes code with PHP 8.2+ features and strict types
 
 ## Description
 
@@ -61,11 +62,12 @@ This class also provides options for iconv processing, such as `IconvOptions::IC
 Examples:
 
     use \ForceUTF8\Encoding;
+    use \ForceUTF8\IconvOptions;
     
     $str = "FÃÂ©dération Camerounaise—de—Football\n"; // Uses U+2014 which is invalid ISO8859-1 but exists in Win1252
-    echo IconvOptions::fixUTF8($str); // Will break U+2014
-    echo IconvOptions::fixUTF8($str, Encoding::ICONV_IGNORE); // Will preserve U+2014
-    echo IconvOptions::fixUTF8($str, Encoding::ICONV_TRANSLIT); // Will preserve U+2014
+    echo Encoding::fixUTF8($str); // Will break U+2014
+    echo Encoding::fixUTF8($str, IconvOptions::ICONV_IGNORE); // Will preserve U+2014
+    echo Encoding::fixUTF8($str, IconvOptions::ICONV_TRANSLIT); // Will preserve U+2014
 
 will output:
 
@@ -76,6 +78,7 @@ will output:
 while:
 
     use \ForceUTF8\Encoding;
+    use \ForceUTF8\IconvOptions;
 
     $str = "čęėįšųūž"; // Uses several characters not present in ISO8859-1 / Win1252
     echo Encoding::fixUTF8($str); // Will break invalid characters
@@ -96,7 +99,7 @@ Edit your composer.json file to include the following:
 ```json
 {
     "require": {
-        "fylax/forceutf8": "~1.0"
+        "fylax/forceutf8": "^4.2"
     }
 }
 ```
